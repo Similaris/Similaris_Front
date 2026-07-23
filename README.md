@@ -89,11 +89,7 @@ prefixo: descrição em minúsculo        (máx. 72 caracteres na primeira linha
 
 Prefixos aceitos: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`. Exemplo: `feat: adiciona tela de envio de documentos`.
 
-Após clonar o repositório, ative a validação com:
-
-```powershell
-git config core.hooksPath .githooks
-```
+A validação é ativada **automaticamente** ao rodar `npm install` (script `prepare`). Além disso, o GitHub Actions (`.github/workflows/valida-commits.yml`) revalida todas as mensagens a cada push/PR na nuvem.
 
 ---
 
