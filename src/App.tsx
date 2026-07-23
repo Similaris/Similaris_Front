@@ -1,16 +1,42 @@
-﻿import { useEffect, useState } from "react";
-import { getHealth } from "./api/client";
+import { useEffect, useState } from "react";
+import { getToken, logout, me, type User } from "./api/client";
+import Login from "./pages/Login";
 
 function App() {
-  const [rodando, setRodando] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    getHealth()
-      .then(() => setRodando(true))
-      .catch(() => setRodando(false));
+    if (!getToken()) {
+      setChecking(false);
+      return;
+    }
+    me()
+      .then(setUser)
+      .catch(() => logout())
+      .finally(() => setChecking(false));
   }, []);
 
-  return <>{rodando && <p>servidor rodando</p>}</>;
+  if (checking) return null;
+
+  if (!user) return <Login onLogin={setUser} />;
+
+  return (
+    <>
+      <p>servidor rodando</p>
+      <p>
+        logado como {user.name}{" "}
+        <button
+          onClick={() => {
+            logout();
+            setUser(null);
+          }}
+        >
+          sair
+        </button>
+      </p>
+    </>
+  );
 }
 
 export default App;
