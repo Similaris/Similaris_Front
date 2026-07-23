@@ -79,4 +79,22 @@ Ao abrir a aplicação, a tela inicial exibe o estado da conexão com o servidor
 
 ---
 
+## Padrão de commits
+
+As mensagens de commit são validadas por um hook (`.githooks/commit-msg`) no formato **Conventional Commits**:
+
+```
+prefixo: descrição em minúsculo        (máx. 72 caracteres na primeira linha)
+```
+
+Prefixos aceitos: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`. Exemplo: `feat: adiciona tela de envio de documentos`.
+
+Após clonar o repositório, ative a validação com:
+
+```powershell
+git config core.hooksPath .githooks
+```
+
+---
+
 FATEC Indaiatuba — Dr. Archimedes Lamoglia · Centro Estadual de Educação Tecnológica Paula Souza · 2025/2026
