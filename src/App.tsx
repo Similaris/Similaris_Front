@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getToken, logout, me, type User } from "./api/client";
+import Documents from "./pages/Documents";
 import Login from "./pages/Login";
 
 function App() {
@@ -22,20 +23,13 @@ function App() {
   if (!user) return <Login onLogin={setUser} />;
 
   return (
-    <>
-      <p>servidor rodando</p>
-      <p>
-        logado como {user.name}{" "}
-        <button
-          onClick={() => {
-            logout();
-            setUser(null);
-          }}
-        >
-          sair
-        </button>
-      </p>
-    </>
+    <Documents
+      user={user}
+      onLogout={() => {
+        logout();
+        setUser(null);
+      }}
+    />
   );
 }
 
