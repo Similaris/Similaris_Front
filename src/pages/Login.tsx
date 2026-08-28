@@ -40,66 +40,103 @@ function Login({ onLogin }: LoginProps) {
   }
 
   return (
-    <div className="login-page">
-      <form className="login-card" onSubmit={handleSubmit}>
-        <h1>Similaris</h1>
-        <p className="login-subtitle">
-          {mode === "login" ? "Entre na sua conta" : "Crie sua conta"}
-        </p>
+    <div className="auth-layout">
+      <aside className="auth-brand">
+        <span className="auth-logo">Similaris</span>
 
-        {mode === "register" && (
-          <label>
-            Nome
+        <div className="auth-brand-copy">
+          <span className="auth-brand-rule" aria-hidden="true" />
+          <h2>Integridade acadêmica com base em evidências.</h2>
+          <p>
+            Análise de similaridade lexical e semântica para trabalhos de
+            graduação, com relatórios detalhados por trecho.
+          </p>
+        </div>
+
+        <p className="auth-brand-footer">Trabalho de Graduação · FATEC</p>
+      </aside>
+
+      <main className="auth-panel">
+        <form className="auth-card" onSubmit={handleSubmit}>
+          <header className="auth-card-header">
+            <h1>{mode === "login" ? "Entrar" : "Criar conta"}</h1>
+            <p>
+              {mode === "login"
+                ? "Acesse sua conta para enviar e acompanhar análises."
+                : "Preencha os dados abaixo para começar a usar o Similaris."}
+            </p>
+          </header>
+
+          {mode === "register" && (
+            <div className="auth-field">
+              <label htmlFor="auth-name">Nome</label>
+              <input
+                id="auth-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Seu nome completo"
+                minLength={2}
+                required
+              />
+            </div>
+          )}
+
+          <div className="auth-field">
+            <label htmlFor="auth-email">E-mail</label>
             <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              minLength={2}
+              id="auth-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="voce@exemplo.com"
+              autoComplete="email"
               required
             />
-          </label>
-        )}
+          </div>
 
-        <label>
-          E-mail
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </label>
+          <div className="auth-field">
+            <label htmlFor="auth-password">Senha</label>
+            <input
+              id="auth-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mínimo de 6 caracteres"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+              minLength={6}
+              required
+            />
+          </div>
 
-        <label>
-          Senha
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={6}
-            required
-          />
-        </label>
+          {error && (
+            <p className="auth-error" role="alert">
+              {error}
+            </p>
+          )}
 
-        {error && <p className="login-error">{error}</p>}
+          <button className="auth-submit" type="submit" disabled={loading}>
+            {loading
+              ? "Aguarde..."
+              : mode === "login"
+                ? "Entrar"
+                : "Cadastrar e entrar"}
+          </button>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Aguarde..." : mode === "login" ? "Entrar" : "Cadastrar e entrar"}
-        </button>
-
-        <button
-          type="button"
-          className="login-toggle"
-          onClick={() => {
-            setMode(mode === "login" ? "register" : "login");
-            setError("");
-          }}
-        >
-          {mode === "login"
-            ? "Não tem conta? Cadastre-se"
-            : "Já tem conta? Entrar"}
-        </button>
-      </form>
+          <p className="auth-switch">
+            {mode === "login" ? "Ainda não tem conta?" : "Já tem conta?"}{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "login" ? "register" : "login");
+                setError("");
+              }}
+            >
+              {mode === "login" ? "Cadastre-se" : "Entrar"}
+            </button>
+          </p>
+        </form>
+      </main>
     </div>
   );
 }

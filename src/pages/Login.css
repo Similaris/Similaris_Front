@@ -1,73 +1,198 @@
-.login-page {
+.auth-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   min-height: 100vh;
+}
+
+/* ---------- Painel de marca ---------- */
+
+.auth-brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 2.75rem 3rem;
+  color: #f4f2fb;
+  background: #161321;
+  overflow: hidden;
+}
+
+.auth-brand::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    80% 55% at 100% 100%,
+    rgb(109 40 217 / 0.16),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.auth-logo {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.auth-brand-copy {
+  margin: auto 0;
+  max-width: 40ch;
+}
+
+.auth-brand-rule {
+  display: block;
+  width: 2rem;
+  height: 2px;
+  margin-bottom: 1.25rem;
+  background: var(--brand-500);
+}
+
+.auth-brand-copy h2 {
+  margin: 0 0 1rem;
+  font-size: 1.7rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.auth-brand-copy p {
+  margin: 0;
+  color: rgb(244 242 251 / 0.62);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.auth-brand-footer {
+  margin: 0;
+  color: rgb(244 242 251 / 0.45);
+  font-size: 0.8rem;
+}
+
+/* ---------- Painel do formulário ---------- */
+
+.auth-panel {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  padding: 2.5rem 1.5rem;
+  background: var(--surface);
 }
 
-.login-card {
+.auth-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  width: 320px;
-  padding: 2rem;
-  border: 1px solid #d0d7de;
-  border-radius: 8px;
+  gap: 1.1rem;
+  width: 100%;
+  max-width: 380px;
 }
 
-.login-card h1 {
+.auth-card-header h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.auth-card-header p {
   margin: 0;
-  text-align: center;
+  color: var(--ink-500);
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
-.login-subtitle {
-  margin: 0 0 0.5rem;
-  text-align: center;
-  color: #57606a;
-}
-
-.login-card label {
+.auth-field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.9rem;
+  gap: 0.4rem;
 }
 
-.login-card input {
-  padding: 0.5rem;
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
-  font-size: 1rem;
+.auth-field label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-700);
 }
 
-.login-card button[type="submit"] {
-  margin-top: 0.5rem;
-  padding: 0.6rem;
+.auth-field input {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  color: var(--ink-900);
+  background: var(--surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.auth-field input::placeholder {
+  color: var(--ink-400);
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px var(--brand-100);
+}
+
+.auth-error {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #f3c1bd;
+  border-radius: var(--radius-sm);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+  font-size: 0.85rem;
+}
+
+.auth-submit {
+  margin-top: 0.25rem;
+  padding: 0.7rem 1rem;
   border: none;
-  border-radius: 6px;
-  background: #1f6feb;
+  border-radius: var(--radius-sm);
+  background: var(--brand-600);
   color: #fff;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s;
 }
 
-.login-card button[type="submit"]:disabled {
-  opacity: 0.6;
+.auth-submit:hover:not(:disabled) {
+  background: var(--brand-700);
+}
+
+.auth-submit:disabled {
+  opacity: 0.65;
   cursor: default;
 }
 
-.login-toggle {
-  background: none;
-  border: none;
-  color: #1f6feb;
-  cursor: pointer;
-  font-size: 0.85rem;
+.auth-switch {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: 0.88rem;
+  text-align: center;
 }
 
-.login-error {
-  margin: 0;
-  color: #cf222e;
-  font-size: 0.85rem;
-  text-align: center;
+.auth-switch button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--brand-600);
+  font-size: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-switch button:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Responsivo ---------- */
+
+@media (max-width: 860px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-brand {
+    display: none;
+  }
 }
