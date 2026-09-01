@@ -10,14 +10,10 @@ export interface DocumentInfo {
   created_at: string;
 }
 
-export interface UploadedDocument extends DocumentInfo {
-  segment_count: number;
-}
-
 export interface BatchUploadResponse {
   batch_id: number;
   status: string;
-  documents: UploadedDocument[];
+  documents: DocumentInfo[];
 }
 
 export interface Segment {

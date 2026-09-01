@@ -284,14 +284,14 @@ function Documents({ user, onLogout }: DocumentsProps) {
 
           {lastUpload && (
             <div className="upload-summary" role="status">
-              <h3>Lote #{lastUpload.batch_id} criado</h3>
+              <h3>Lote #{lastUpload.batch_id} enviado para processamento</h3>
               <ul>
                 {lastUpload.documents.map((document) => (
                   <li key={document.id}>
                     <strong>{document.filename}</strong>
                     {document.status === "erro"
                       ? ` — falhou: ${document.error_message}`
-                      : ` — ${document.segment_count} segmentos gerados`}
+                      : " — na fila de análise"}
                   </li>
                 ))}
               </ul>
