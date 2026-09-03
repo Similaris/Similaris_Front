@@ -7,7 +7,31 @@ export interface DocumentInfo {
   file_type: string;
   status: string;
   error_message: string | null;
+  extraction_ms: number | null;
   created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+}
+
+export interface BatchDocumentCounts {
+  pendente: number;
+  processando: number;
+  concluido: number;
+  erro: number;
+}
+
+export interface BatchSummary {
+  id: number;
+  status: string;
+  created_at: string;
+  finished_at: string | null;
+  total_documents: number;
+  processed_documents: number;
+  document_counts: BatchDocumentCounts;
+}
+
+export interface BatchDetail extends BatchSummary {
+  documents: DocumentInfo[];
 }
 
 export interface BatchUploadResponse {
@@ -43,6 +67,16 @@ export async function uploadDocuments(
 
 export async function listDocuments(): Promise<DocumentInfo[]> {
   const { data } = await api.get<DocumentInfo[]>("/documents");
+  return data;
+}
+
+export async function listBatches(): Promise<BatchSummary[]> {
+  const { data } = await api.get<BatchSummary[]>("/batches");
+  return data;
+}
+
+export async function getBatch(batchId: number): Promise<BatchDetail> {
+  const { data } = await api.get<BatchDetail>(`/batches/${batchId}`);
   return data;
 }
 
