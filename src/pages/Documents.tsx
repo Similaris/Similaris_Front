@@ -8,9 +8,10 @@ import {
 import { isAxiosError } from "axios";
 import type { User } from "../api/client";
 import {
+  getBatch,
   listDocuments,
   uploadDocuments,
-  type BatchUploadResponse,
+  type BatchDetail,
   type DocumentInfo,
 } from "../api/documents";
 import "./Documents.css";
@@ -22,6 +23,7 @@ interface DocumentsProps {
 
 const ACCEPTED_EXTENSIONS = [".pdf", ".docx"];
 const MAX_FILE_SIZE_MB = 20;
+const BATCH_POLL_INTERVAL_MS = 2500;
 
 const STATUS_LABELS: Record<string, string> = {
   pendente: "Pendente",
@@ -29,6 +31,27 @@ const STATUS_LABELS: Record<string, string> = {
   concluido: "Concluído",
   erro: "Erro",
 };
+
+function isBatchFinished(status: string): boolean {
+  return status === "concluido" || status === "erro";
+}
+
+function batchStateLabel(batch: BatchDetail): string {
+  if (batch.status === "erro") return "Falha no processamento";
+  if (batch.status === "concluido") {
+    return batch.document_counts.erro > 0
+      ? "Concluído com falhas"
+      : "Processamento concluído";
+  }
+  return `Processando ${batch.processed_documents} de ${batch.total_documents}`;
+}
+
+function progressPercent(batch: BatchDetail): number {
+  if (batch.total_documents === 0) return 0;
+  return Math.round(
+    (batch.processed_documents / batch.total_documents) * 100,
+  );
+}
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
@@ -60,7 +83,8 @@ function hasValidExtension(filename: string): boolean {
 function Documents({ user, onLogout }: DocumentsProps) {
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [lastUpload, setLastUpload] = useState<BatchUploadResponse | null>(null);
+  const [trackedBatchId, setTrackedBatchId] = useState<number | null>(null);
+  const [batchDetail, setBatchDetail] = useState<BatchDetail | null>(null);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [loadingList, setLoadingList] = useState(true);
@@ -70,6 +94,37 @@ function Documents({ user, onLogout }: DocumentsProps) {
   useEffect(() => {
     refreshDocuments();
   }, []);
+
+  useEffect(() => {
+    if (trackedBatchId === null) return;
+
+    let cancelled = false;
+    let timer: number | undefined;
+
+    async function poll() {
+      try {
+        const detail = await getBatch(trackedBatchId as number);
+        if (cancelled) return;
+        setBatchDetail(detail);
+        if (isBatchFinished(detail.status)) {
+          refreshDocuments();
+          return;
+        }
+      } catch {
+        // Falha transitória: mantém o último estado e tenta novamente.
+      }
+      if (!cancelled) {
+        timer = window.setTimeout(poll, BATCH_POLL_INTERVAL_MS);
+      }
+    }
+
+    poll();
+
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [trackedBatchId]);
 
   async function refreshDocuments() {
     setLoadingList(true);
@@ -131,7 +186,8 @@ function Documents({ user, onLogout }: DocumentsProps) {
     setUploading(true);
     try {
       const result = await uploadDocuments(selectedFiles);
-      setLastUpload(result);
+      setBatchDetail(null);
+      setTrackedBatchId(result.batch_id);
       clearSelection();
       await refreshDocuments();
     } catch (err) {
@@ -282,19 +338,62 @@ function Documents({ user, onLogout }: DocumentsProps) {
             </div>
           )}
 
-          {lastUpload && (
-            <div className="upload-summary" role="status">
-              <h3>Lote #{lastUpload.batch_id} enviado para processamento</h3>
-              <ul>
-                {lastUpload.documents.map((document) => (
-                  <li key={document.id}>
-                    <strong>{document.filename}</strong>
-                    {document.status === "erro"
-                      ? ` — falhou: ${document.error_message}`
-                      : " — na fila de análise"}
-                  </li>
-                ))}
-              </ul>
+          {trackedBatchId !== null && (
+            <div className="batch-monitor" role="status">
+              {batchDetail === null ? (
+                <p className="batch-monitor-loading">
+                  Consultando andamento do lote #{trackedBatchId}...
+                </p>
+              ) : (
+                <>
+                  <div className="batch-monitor-head">
+                    <h3>Lote #{batchDetail.id}</h3>
+                    <span
+                      className={`batch-monitor-state${
+                        isBatchFinished(batchDetail.status)
+                          ? ` is-${batchDetail.status}`
+                          : ""
+                      }`}
+                    >
+                      {batchStateLabel(batchDetail)}
+                    </span>
+                  </div>
+
+                  <div
+                    className="progress"
+                    role="progressbar"
+                    aria-valuemin={0}
+                    aria-valuemax={batchDetail.total_documents}
+                    aria-valuenow={batchDetail.processed_documents}
+                  >
+                    <div
+                      className="progress-bar"
+                      style={{ width: `${progressPercent(batchDetail)}%` }}
+                    />
+                  </div>
+
+                  <ul className="batch-docs">
+                    {batchDetail.documents.map((document) => (
+                      <li key={document.id}>
+                        <div className="batch-doc-row">
+                          <span className="batch-doc-name">
+                            {document.filename}
+                          </span>
+                          <span className={`status-pill is-${document.status}`}>
+                            {STATUS_LABELS[document.status] ?? document.status}
+                          </span>
+                        </div>
+                        {document.status === "erro" &&
+                          document.error_message && (
+                            <p className="batch-doc-error">
+                              {document.error_message}
+                            </p>
+                          )}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
           )}
         </section>
