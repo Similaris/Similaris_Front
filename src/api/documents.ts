@@ -1,13 +1,25 @@
 import { api } from "./client";
 
+export type ProcessingStatus =
+  | "pendente"
+  | "processando"
+  | "concluido"
+  | "erro";
+
+export function isFinalStatus(status: ProcessingStatus): boolean {
+  return status === "concluido" || status === "erro";
+}
+
 export interface DocumentInfo {
   id: number;
   batch_id: number;
   filename: string;
   file_type: string;
-  status: string;
+  status: ProcessingStatus;
   error_message: string | null;
   extraction_ms: number | null;
+  lexical_ms: number | null;
+  semantic_ms: number | null;
   created_at: string;
   started_at: string | null;
   finished_at: string | null;
@@ -22,7 +34,7 @@ export interface BatchDocumentCounts {
 
 export interface BatchSummary {
   id: number;
-  status: string;
+  status: ProcessingStatus;
   created_at: string;
   finished_at: string | null;
   total_documents: number;
@@ -36,7 +48,7 @@ export interface BatchDetail extends BatchSummary {
 
 export interface BatchUploadResponse {
   batch_id: number;
-  status: string;
+  status: ProcessingStatus;
   documents: DocumentInfo[];
 }
 
