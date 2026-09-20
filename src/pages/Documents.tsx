@@ -6,35 +6,21 @@ import {
   type DragEvent,
 } from "react";
 import { isAxiosError } from "axios";
-import type { User } from "../api/client";
 import {
   getBatch,
+  isFinalStatus,
   listDocuments,
   uploadDocuments,
   type BatchDetail,
   type DocumentInfo,
 } from "../api/documents";
+import StatusBadge from "../components/StatusBadge";
+import { formatDateTime } from "../utils/format";
 import "./Documents.css";
-
-interface DocumentsProps {
-  user: User;
-  onLogout: () => void;
-}
 
 const ACCEPTED_EXTENSIONS = [".pdf", ".docx"];
 const MAX_FILE_SIZE_MB = 20;
 const BATCH_POLL_INTERVAL_MS = 2500;
-
-const STATUS_LABELS: Record<string, string> = {
-  pendente: "Pendente",
-  processando: "Processando",
-  concluido: "Concluído",
-  erro: "Erro",
-};
-
-function isBatchFinished(status: string): boolean {
-  return status === "concluido" || status === "erro";
-}
 
 function batchStateLabel(batch: BatchDetail): string {
   if (batch.status === "erro") return "Falha no processamento";
@@ -58,29 +44,12 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function formatDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-  return (first + last).toUpperCase();
-}
-
 function hasValidExtension(filename: string): boolean {
   const lower = filename.toLowerCase();
   return ACCEPTED_EXTENSIONS.some((extension) => lower.endsWith(extension));
 }
 
-function Documents({ user, onLogout }: DocumentsProps) {
+function Documents() {
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [trackedBatchId, setTrackedBatchId] = useState<number | null>(null);
@@ -106,7 +75,7 @@ function Documents({ user, onLogout }: DocumentsProps) {
         const detail = await getBatch(trackedBatchId as number);
         if (cancelled) return;
         setBatchDetail(detail);
-        if (isBatchFinished(detail.status)) {
+        if (isFinalStatus(detail.status)) {
           refreshDocuments();
           return;
         }
@@ -207,24 +176,7 @@ function Documents({ user, onLogout }: DocumentsProps) {
   }
 
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <div className="app-header-inner">
-          <span className="app-logo">Similaris</span>
-
-          <div className="app-user">
-            <span className="app-avatar" aria-hidden="true">
-              {initialsOf(user.name)}
-            </span>
-            <span className="app-user-name">{user.name}</span>
-            <button className="app-logout" type="button" onClick={onLogout}>
-              Sair
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="page">
+    <main className="page">
         <div className="page-heading">
           <h1>Documentos</h1>
           <p>Envie trabalhos em PDF ou DOCX para segmentação e análise.</p>
@@ -350,7 +302,7 @@ function Documents({ user, onLogout }: DocumentsProps) {
                     <h3>Lote #{batchDetail.id}</h3>
                     <span
                       className={`batch-monitor-state${
-                        isBatchFinished(batchDetail.status)
+                        isFinalStatus(batchDetail.status)
                           ? ` is-${batchDetail.status}`
                           : ""
                       }`}
@@ -379,9 +331,7 @@ function Documents({ user, onLogout }: DocumentsProps) {
                           <span className="batch-doc-name">
                             {document.filename}
                           </span>
-                          <span className={`status-pill is-${document.status}`}>
-                            {STATUS_LABELS[document.status] ?? document.status}
-                          </span>
+                          <StatusBadge status={document.status} />
                         </div>
                         {document.status === "erro" &&
                           document.error_message && (
@@ -429,12 +379,10 @@ function Documents({ user, onLogout }: DocumentsProps) {
                       <td className="table-file">{document.filename}</td>
                       <td>{document.file_type.toUpperCase()}</td>
                       <td>
-                        <span className={`status-pill is-${document.status}`}>
-                          {STATUS_LABELS[document.status] ?? document.status}
-                        </span>
+                        <StatusBadge status={document.status} />
                       </td>
                       <td className="table-date">
-                        {formatDate(document.created_at)}
+                        {formatDateTime(document.created_at)}
                       </td>
                     </tr>
                   ))}
@@ -443,8 +391,7 @@ function Documents({ user, onLogout }: DocumentsProps) {
             </div>
           )}
         </section>
-      </main>
-    </div>
+    </main>
   );
 }
 
