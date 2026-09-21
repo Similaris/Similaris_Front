@@ -23,3 +23,15 @@ export function pluralize(
 ): string {
   return `${count} ${count === 1 ? singular : plural}`;
 }
+
+export function formatPercentage(score: number): string {
+  return `${Math.round(score * 100)}%`;
+}
+
+export function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR")
+    .trim();
+}

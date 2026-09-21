@@ -231,6 +231,14 @@
 
 /* ---------- Tabela ---------- */
 
+.document-list-tools {
+  margin-bottom: 1rem;
+}
+
+.document-filter-empty {
+  border-top: 1px solid var(--border);
+}
+
 .table-wrap {
   margin: 0 -0.4rem;
   overflow-x: auto;
@@ -281,4 +289,54 @@
   white-space: nowrap;
   color: var(--ink-500);
   font-variant-numeric: tabular-nums;
+}
+
+.table-action {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table th:last-child {
+  text-align: right;
+}
+
+.table-action > span {
+  color: var(--ink-400);
+}
+
+.table-action .button-ghost {
+  padding: 0.42rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.documents-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  color: var(--ink-500);
+  font-size: 0.78rem;
+}
+
+.documents-pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.documents-pagination .button-ghost {
+  padding: 0.42rem 0.7rem;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 600px) {
+  .documents-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .documents-pagination > div {
+    justify-content: space-between;
+  }
 }

@@ -1,27 +1,49 @@
 import { useEffect, useState } from "react";
 import { getToken, logout, me, type User } from "./api/client";
 import AppLayout from "./components/AppLayout";
+import AnalysisReport from "./pages/AnalysisReport";
 import BatchDetails from "./pages/BatchDetails";
+import Dashboard from "./pages/Dashboard";
 import DocumentDetails from "./pages/DocumentDetails";
 import Documents from "./pages/Documents";
 import History from "./pages/History";
+import HowItWorks from "./pages/HowItWorks";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 
 type AppRoute =
+  | { name: "home" }
+  | { name: "dashboard" }
   | { name: "documents" }
   | { name: "history" }
+  | { name: "how-it-works" }
   | { name: "batch"; batchId: number }
   | { name: "document"; batchId: number; documentId: number }
+  | { name: "report"; batchId: number; documentId: number }
   | { name: "not-found" };
 
 function normalizedPath(path: string): string {
   const normalized = path.replace(/\/+$/, "");
-  return normalized && normalized !== "/" ? normalized : "/documents";
+  return normalized && normalized !== "/" ? normalized : "/home";
 }
 
 function parseRoute(path: string): AppRoute {
-  if (path === "/" || path === "/documents") return { name: "documents" };
+  if (path === "/" || path === "/home") return { name: "home" };
+  if (path === "/dashboard") return { name: "dashboard" };
+  if (path === "/documents") return { name: "documents" };
   if (path === "/history") return { name: "history" };
+  if (path === "/como-funciona") return { name: "how-it-works" };
+
+  const reportMatch = path.match(
+    /^\/history\/(\d+)\/documents\/(\d+)\/report$/,
+  );
+  if (reportMatch) {
+    return {
+      name: "report",
+      batchId: Number(reportMatch[1]),
+      documentId: Number(reportMatch[2]),
+    };
+  }
 
   const documentMatch = path.match(
     /^\/history\/(\d+)\/documents\/(\d+)$/,
@@ -78,15 +100,47 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function completeLogin(authenticatedUser: User) {
+    window.history.replaceState(null, "", "/home");
+    setCurrentPath("/home");
+    setUser(authenticatedUser);
+  }
+
   if (checking) return null;
 
-  if (!user) return <Login onLogin={setUser} />;
+  if (!user) return <Login onLogin={completeLogin} />;
 
   const route = parseRoute(currentPath);
 
   let page;
-  if (route.name === "documents") {
-    page = <Documents />;
+  if (route.name === "home") {
+    page = (
+      <Home
+        onStartAnalysis={() => navigate("/documents")}
+        onOpenHistory={() => navigate("/history")}
+        onOpenDashboard={() => navigate("/dashboard")}
+        onOpenBatch={(batchId) => navigate(`/history/${batchId}`)}
+        onOpenReport={(batchId, documentId) =>
+          navigate(`/history/${batchId}/documents/${documentId}/report`)
+        }
+      />
+    );
+  } else if (route.name === "dashboard") {
+    page = (
+      <Dashboard
+        onStartAnalysis={() => navigate("/documents")}
+        onOpenHistory={() => navigate("/history")}
+        onOpenBatch={(batchId) => navigate(`/history/${batchId}`)}
+      />
+    );
+  } else if (route.name === "documents") {
+    page = (
+      <Documents
+        onOpenReport={(batchId, documentId) =>
+          navigate(`/history/${batchId}/documents/${documentId}/report`)
+        }
+      />
+    );
   } else if (route.name === "history") {
     page = (
       <History
@@ -94,6 +148,8 @@ function App() {
         onStartAnalysis={() => navigate("/documents")}
       />
     );
+  } else if (route.name === "how-it-works") {
+    page = <HowItWorks onStartAnalysis={() => navigate("/documents")} />;
   } else if (route.name === "batch") {
     page = (
       <BatchDetails
@@ -101,6 +157,9 @@ function App() {
         onBack={() => navigate("/history")}
         onOpenDocument={(documentId) =>
           navigate(`/history/${route.batchId}/documents/${documentId}`)
+        }
+        onOpenReport={(documentId) =>
+          navigate(`/history/${route.batchId}/documents/${documentId}/report`)
         }
       />
     );
@@ -110,6 +169,22 @@ function App() {
         batchId={route.batchId}
         documentId={route.documentId}
         onBack={() => navigate(`/history/${route.batchId}`)}
+        onOpenReport={() =>
+          navigate(
+            `/history/${route.batchId}/documents/${route.documentId}/report`,
+          )
+        }
+      />
+    );
+  } else if (route.name === "report") {
+    page = (
+      <AnalysisReport
+        batchId={route.batchId}
+        documentId={route.documentId}
+        onBack={() => navigate(`/history/${route.batchId}`)}
+        onOpenDocument={() =>
+          navigate(`/history/${route.batchId}/documents/${route.documentId}`)
+        }
       />
     );
   } else {
@@ -138,8 +213,8 @@ function App() {
       onNavigate={navigate}
       onLogout={() => {
         logout();
-        window.history.replaceState(null, "", "/documents");
-        setCurrentPath("/documents");
+        window.history.replaceState(null, "", "/home");
+        setCurrentPath("/home");
         setUser(null);
       }}
     >

@@ -7,20 +7,34 @@ import {
   type Segment,
 } from "../api/documents";
 import StatusBadge from "../components/StatusBadge";
-import { formatDateTime, pluralize } from "../utils/format";
+import {
+  formatDateTime,
+  normalizeSearchText,
+  pluralize,
+} from "../utils/format";
+
+const SEGMENTS_PER_PAGE = 5;
 
 interface DocumentDetailsProps {
   batchId: number;
   documentId: number;
   onBack: () => void;
+  onOpenReport: () => void;
 }
 
-function DocumentDetails({ batchId, documentId, onBack }: DocumentDetailsProps) {
+function DocumentDetails({
+  batchId,
+  documentId,
+  onBack,
+  onOpenReport,
+}: DocumentDetailsProps) {
   const [document, setDocument] = useState<DocumentInfo | null>(null);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [segmentSearch, setSegmentSearch] = useState("");
+  const [segmentsPage, setSegmentsPage] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,6 +61,8 @@ function DocumentDetails({ batchId, documentId, onBack }: DocumentDetailsProps) 
 
         setDocument(loadedDocument);
         setSegments(loadedSegments);
+        setSegmentSearch("");
+        setSegmentsPage(1);
       } catch {
         if (!cancelled) {
           setError("Não foi possível carregar este documento.");
@@ -61,6 +77,25 @@ function DocumentDetails({ batchId, documentId, onBack }: DocumentDetailsProps) 
       cancelled = true;
     };
   }, [batchId, documentId, reloadKey]);
+
+  const normalizedSegmentSearch = normalizeSearchText(segmentSearch);
+  const filteredSegments = segments.filter((segment) => {
+    if (!normalizedSegmentSearch) return true;
+    const searchableContent = normalizeSearchText(
+      `trecho ${segment.position} ${segment.position} ${segment.text_original}`,
+    );
+    return searchableContent.includes(normalizedSegmentSearch);
+  });
+  const segmentsPageCount = Math.max(
+    1,
+    Math.ceil(filteredSegments.length / SEGMENTS_PER_PAGE),
+  );
+  const currentSegmentsPage = Math.min(segmentsPage, segmentsPageCount);
+  const firstVisibleSegment = (currentSegmentsPage - 1) * SEGMENTS_PER_PAGE;
+  const visibleSegments = filteredSegments.slice(
+    firstVisibleSegment,
+    firstVisibleSegment + SEGMENTS_PER_PAGE,
+  );
 
   return (
     <main className="page">
@@ -99,7 +134,18 @@ function DocumentDetails({ batchId, documentId, onBack }: DocumentDetailsProps) 
                 {formatDateTime(document.created_at)}
               </p>
             </div>
-            <StatusBadge status={document.status} />
+            <div className="detail-heading-actions">
+              <StatusBadge status={document.status} />
+              {document.status === "concluido" && (
+                <button
+                  className="button-primary"
+                  type="button"
+                  onClick={onOpenReport}
+                >
+                  Ver relatório
+                </button>
+              )}
+            </div>
           </div>
 
           {document.error_message && (
@@ -113,10 +159,28 @@ function DocumentDetails({ batchId, documentId, onBack }: DocumentDetailsProps) 
               <h2 id="segments-title">Conteúdo extraído</h2>
               {segments.length > 0 && (
                 <span className="card-count">
-                  {pluralize(segments.length, "trecho", "trechos")}
+                  {filteredSegments.length === segments.length
+                    ? pluralize(segments.length, "trecho", "trechos")
+                    : `${filteredSegments.length} de ${segments.length} trechos`}
                 </span>
               )}
             </div>
+
+            {segments.length > 0 && (
+              <div className="list-toolbar document-segment-tools">
+                <input
+                  className="list-search"
+                  type="search"
+                  value={segmentSearch}
+                  placeholder="Pesquisar por texto ou número do trecho"
+                  aria-label="Pesquisar no conteúdo extraído"
+                  onChange={(event) => {
+                    setSegmentSearch(event.target.value);
+                    setSegmentsPage(1);
+                  }}
+                />
+              </div>
+            )}
 
             {segments.length === 0 ? (
               <div className="history-empty compact">
@@ -137,22 +201,73 @@ function DocumentDetails({ batchId, documentId, onBack }: DocumentDetailsProps) 
                   </button>
                 )}
               </div>
+            ) : filteredSegments.length === 0 ? (
+              <div className="history-empty compact">
+                <p>Nenhum trecho encontrado.</p>
+                <span>Tente pesquisar por outro termo ou número.</span>
+                <button
+                  className="button-ghost"
+                  type="button"
+                  onClick={() => setSegmentSearch("")}
+                >
+                  Limpar pesquisa
+                </button>
+              </div>
             ) : (
-              <ol className="document-segments">
-                {segments.map((segment) => (
-                  <li key={segment.id}>
-                    <span>Trecho {segment.position}</span>
-                    <p>{segment.text_original}</p>
-                  </li>
-                ))}
-              </ol>
+              <>
+                <ol className="document-segments">
+                  {visibleSegments.map((segment) => (
+                    <li key={segment.id}>
+                      <span>Trecho {segment.position}</span>
+                      <p>{segment.text_original}</p>
+                    </li>
+                  ))}
+                </ol>
+
+                {filteredSegments.length > SEGMENTS_PER_PAGE && (
+                  <nav
+                    className="document-segments-pagination"
+                    aria-label="Paginação do conteúdo extraído"
+                  >
+                    <span>
+                      Exibindo {firstVisibleSegment + 1}–
+                      {Math.min(
+                        firstVisibleSegment + SEGMENTS_PER_PAGE,
+                        filteredSegments.length,
+                      )} de {filteredSegments.length}
+                    </span>
+                    <div>
+                      <button
+                        className="button-ghost"
+                        type="button"
+                        disabled={currentSegmentsPage === 1}
+                        onClick={() =>
+                          setSegmentsPage((page) => Math.max(1, page - 1))
+                        }
+                      >
+                        Anterior
+                      </button>
+                      <span>
+                        Página {currentSegmentsPage} de {segmentsPageCount}
+                      </span>
+                      <button
+                        className="button-ghost"
+                        type="button"
+                        disabled={currentSegmentsPage === segmentsPageCount}
+                        onClick={() =>
+                          setSegmentsPage((page) =>
+                            Math.min(segmentsPageCount, page + 1),
+                          )
+                        }
+                      >
+                        Próxima
+                      </button>
+                    </div>
+                  </nav>
+                )}
+              </>
             )}
           </section>
-
-          <p className="report-note">
-            Os indicadores de similaridade e as correspondências serão apresentados
-            no relatório da próxima etapa.
-          </p>
         </>
       )}
     </main>
