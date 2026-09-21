@@ -11,11 +11,17 @@ interface BatchDetailsProps {
   batchId: number;
   onBack: () => void;
   onOpenDocument: (documentId: number) => void;
+  onOpenReport: (documentId: number) => void;
 }
 
 const POLL_INTERVAL_MS = 2500;
 
-function BatchDetails({ batchId, onBack, onOpenDocument }: BatchDetailsProps) {
+function BatchDetails({
+  batchId,
+  onBack,
+  onOpenDocument,
+  onOpenReport,
+}: BatchDetailsProps) {
   const [batch, setBatch] = useState<BatchDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -134,14 +140,26 @@ function BatchDetails({ batchId, onBack, onOpenDocument }: BatchDetailsProps) {
                     )}
                   </div>
                   <StatusBadge status={document.status} />
-                  <button
-                    className="button-ghost"
-                    type="button"
-                    onClick={() => onOpenDocument(document.id)}
-                    aria-label={`Ver documento ${document.filename}`}
-                  >
-                    Ver documento
-                  </button>
+                  <div className="detail-document-actions">
+                    {document.status === "concluido" && (
+                      <button
+                        className="button-primary"
+                        type="button"
+                        onClick={() => onOpenReport(document.id)}
+                        aria-label={`Ver relatório de ${document.filename}`}
+                      >
+                        Ver relatório
+                      </button>
+                    )}
+                    <button
+                      className="button-ghost"
+                      type="button"
+                      onClick={() => onOpenDocument(document.id)}
+                      aria-label={`Ver documento ${document.filename}`}
+                    >
+                      Ver documento
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
