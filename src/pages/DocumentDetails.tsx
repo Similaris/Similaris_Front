@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { getApiErrorMessage } from "../api/client";
 import {
   getBatch,
   isFinalStatus,
   listDocumentSegments,
+  retryDocument,
   type DocumentInfo,
   type Segment,
 } from "../api/documents";
@@ -14,6 +16,7 @@ import {
 } from "../utils/format";
 
 const SEGMENTS_PER_PAGE = 5;
+const POLL_INTERVAL_MS = 2500;
 
 interface DocumentDetailsProps {
   batchId: number;
@@ -35,12 +38,14 @@ function DocumentDetails({
   const [reloadKey, setReloadKey] = useState(0);
   const [segmentSearch, setSegmentSearch] = useState("");
   const [segmentsPage, setSegmentsPage] = useState(1);
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    let timer: number | undefined;
 
-    async function loadDocument() {
-      setLoading(true);
+    async function loadDocument(showLoading: boolean) {
+      if (showLoading) setLoading(true);
       setError("");
 
       try {
@@ -63,20 +68,44 @@ function DocumentDetails({
         setSegments(loadedSegments);
         setSegmentSearch("");
         setSegmentsPage(1);
-      } catch {
+        if (!isFinalStatus(loadedDocument.status)) {
+          timer = window.setTimeout(
+            () => loadDocument(false),
+            POLL_INTERVAL_MS,
+          );
+        }
+      } catch (requestError) {
         if (!cancelled) {
-          setError("Não foi possível carregar este documento.");
+          setError(
+            getApiErrorMessage(requestError, "Não foi possível carregar este documento."),
+          );
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && showLoading) setLoading(false);
       }
     }
 
-    loadDocument();
+    loadDocument(true);
     return () => {
       cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
     };
   }, [batchId, documentId, reloadKey]);
+
+  async function handleRetry() {
+    setError("");
+    setRetrying(true);
+    try {
+      await retryDocument(documentId);
+      setReloadKey((value) => value + 1);
+    } catch (requestError) {
+      setError(
+        getApiErrorMessage(requestError, "Não foi possível reenviar o documento."),
+      );
+    } finally {
+      setRetrying(false);
+    }
+  }
 
   const normalizedSegmentSearch = normalizeSearchText(segmentSearch);
   const filteredSegments = segments.filter((segment) => {
@@ -143,6 +172,16 @@ function DocumentDetails({
                   onClick={onOpenReport}
                 >
                   Ver relatório
+                </button>
+              )}
+              {document.status === "erro" && (
+                <button
+                  className="button-primary"
+                  type="button"
+                  disabled={retrying}
+                  onClick={handleRetry}
+                >
+                  {retrying ? "Reenviando..." : "Reprocessar"}
                 </button>
               )}
             </div>

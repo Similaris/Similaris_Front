@@ -48,7 +48,7 @@
 }
 
 .analysis-summary-card.is-primary {
-  border-color: #d8cff8;
+  border-color: #cbdcfb;
   background: var(--brand-50);
 }
 
@@ -85,6 +85,59 @@
   border-radius: var(--radius-md);
   background: var(--info-bg);
   color: var(--ink-700);
+}
+
+.analysis-traceability {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid #cbdcfb;
+  border-radius: var(--radius-md);
+  background: var(--brand-50);
+}
+
+.analysis-traceability > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.analysis-traceability strong {
+  color: var(--brand-700);
+  font-size: 0.84rem;
+}
+
+.analysis-traceability span,
+.analysis-traceability dt {
+  color: var(--ink-500);
+  font-size: 0.7rem;
+}
+
+.analysis-traceability dl {
+  display: flex;
+  gap: 1.25rem;
+  margin: 0;
+}
+
+.analysis-traceability dl > div {
+  min-width: 0;
+}
+
+.analysis-traceability dt {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.analysis-traceability dd {
+  max-width: 16rem;
+  margin: 0.2rem 0 0;
+  overflow: hidden;
+  color: var(--ink-700);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .analysis-human-review strong {
@@ -208,7 +261,7 @@
 
 .analysis-filters button:hover,
 .analysis-filters button.is-active {
-  border-color: #d8cff8;
+  border-color: #cbdcfb;
   background: var(--brand-50);
   color: var(--brand-700);
 }
@@ -612,7 +665,7 @@
 }
 
 .analysis-metric.is-emphasized {
-  border-color: #d8cff8;
+  border-color: #cbdcfb;
   background: var(--brand-50);
 }
 
@@ -674,6 +727,12 @@
 }
 
 @media (max-width: 700px) {
+  .analysis-traceability,
+  .analysis-traceability dl {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .analysis-text-comparison {
     grid-template-columns: 1fr;
   }

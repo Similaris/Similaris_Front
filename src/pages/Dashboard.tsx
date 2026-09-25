@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { isAxiosError } from "axios";
+import { getApiErrorMessage } from "../api/client";
 import { getDashboard, type DashboardData } from "../api/dashboard";
 import AnalysisTimelineChart from "../components/dashboard/AnalysisTimelineChart";
 import DashboardSummary from "../components/dashboard/DashboardSummary";
@@ -15,18 +15,10 @@ interface DashboardProps {
 }
 
 function errorMessage(error: unknown): string {
-  if (!isAxiosError(error) || !error.response) {
-    return "Não foi possível conectar ao servidor para carregar o Dashboard.";
-  }
-
-  if (error.response.status === 401) {
-    return "Sua sessão expirou. Entre novamente para acessar o Dashboard.";
-  }
-
-  const detail = error.response.data?.detail;
-  return typeof detail === "string"
-    ? detail
-    : "Não foi possível carregar os dados do Dashboard.";
+  return getApiErrorMessage(
+    error,
+    "Não foi possível carregar os dados do Dashboard.",
+  );
 }
 
 function DashboardLoading() {

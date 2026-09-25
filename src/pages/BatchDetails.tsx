@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import {
   getBatch,
   isFinalStatus,
+  retryDocument,
   type BatchDetail,
 } from "../api/documents";
+import { getApiErrorMessage } from "../api/client";
 import StatusBadge from "../components/StatusBadge";
 import { formatDateTime, pluralize } from "../utils/format";
 
@@ -26,6 +28,7 @@ function BatchDetails({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [retryingDocumentId, setRetryingDocumentId] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,9 +46,14 @@ function BatchDetails({
         if (!isFinalStatus(detail.status)) {
           timer = window.setTimeout(() => loadBatch(false), POLL_INTERVAL_MS);
         }
-      } catch {
+      } catch (requestError) {
         if (!cancelled) {
-          setError("Não foi possível carregar os detalhes desta análise.");
+          setError(
+            getApiErrorMessage(
+              requestError,
+              "Não foi possível carregar os detalhes desta análise.",
+            ),
+          );
         }
       } finally {
         if (!cancelled && showLoading) setLoading(false);
@@ -59,6 +67,21 @@ function BatchDetails({
       if (timer !== undefined) window.clearTimeout(timer);
     };
   }, [batchId, reloadKey]);
+
+  async function handleRetry(documentId: number) {
+    setError("");
+    setRetryingDocumentId(documentId);
+    try {
+      await retryDocument(documentId);
+      setReloadKey((value) => value + 1);
+    } catch (requestError) {
+      setError(
+        getApiErrorMessage(requestError, "Não foi possível reenviar o documento."),
+      );
+    } finally {
+      setRetryingDocumentId(null);
+    }
+  }
 
   return (
     <main className="page">
@@ -149,6 +172,19 @@ function BatchDetails({
                         aria-label={`Ver relatório de ${document.filename}`}
                       >
                         Ver relatório
+                      </button>
+                    )}
+                    {document.status === "erro" && (
+                      <button
+                        className="button-primary"
+                        type="button"
+                        disabled={retryingDocumentId === document.id}
+                        onClick={() => handleRetry(document.id)}
+                        aria-label={`Reprocessar ${document.filename}`}
+                      >
+                        {retryingDocumentId === document.id
+                          ? "Reenviando..."
+                          : "Reprocessar"}
                       </button>
                     )}
                     <button

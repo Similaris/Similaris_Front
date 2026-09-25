@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getApiErrorMessage } from "../api/client";
 import { getDashboard, type RecentAnalysis } from "../api/dashboard";
 import DocumentUpload from "../components/DocumentUpload";
 import SimilarisBrand from "../components/SimilarisBrand";
@@ -33,8 +34,15 @@ function Home({
       .then((data) => {
         if (!cancelled) setAnalyses(data.recent_analyses);
       })
-      .catch(() => {
-        if (!cancelled) setError("Não foi possível carregar as análises recentes.");
+      .catch((requestError) => {
+        if (!cancelled) {
+          setError(
+            getApiErrorMessage(
+              requestError,
+              "Não foi possível carregar as análises recentes.",
+            ),
+          );
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -80,7 +88,7 @@ function Home({
           <span><strong>Histórico de análises</strong><small>Acesse os lotes e relatórios anteriores.</small></span>
           <b aria-hidden="true">›</b>
         </button>
-        <button className="home-shortcut is-purple" type="button" onClick={onOpenDashboard}>
+        <button className="home-shortcut is-navy" type="button" onClick={onOpenDashboard}>
           <span className="home-shortcut-icon" aria-hidden="true">▥</span>
           <span><strong>Dashboard</strong><small>Visualize indicadores e distribuições.</small></span>
           <b aria-hidden="true">›</b>

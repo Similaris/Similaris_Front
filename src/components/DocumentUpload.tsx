@@ -5,7 +5,7 @@ import {
   type ChangeEvent,
   type DragEvent,
 } from "react";
-import { isAxiosError } from "axios";
+import { getApiErrorMessage } from "../api/client";
 import {
   getBatch,
   isFinalStatus,
@@ -152,16 +152,9 @@ function DocumentUpload({
       setSelectedFiles([]);
       onDocumentsChangedRef.current?.();
     } catch (requestError) {
-      if (isAxiosError(requestError) && requestError.response) {
-        const detail = requestError.response.data?.detail;
-        setError(
-          typeof detail === "string"
-            ? detail
-            : "Não foi possível enviar os arquivos.",
-        );
-      } else {
-        setError("Não foi possível conectar ao servidor.");
-      }
+      setError(
+        getApiErrorMessage(requestError, "Não foi possível enviar os arquivos."),
+      );
     } finally {
       setUploading(false);
     }
