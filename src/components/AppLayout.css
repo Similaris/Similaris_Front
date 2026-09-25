@@ -1,7 +1,7 @@
 .app-shell {
   display: flex;
   min-height: 100vh;
-  background: #f7f9fc;
+  background: #f8f7fa;
 }
 
 .app-sidebar {
@@ -14,8 +14,8 @@
   width: 246px;
   flex-direction: column;
   padding: 1.35rem 0.9rem 1.1rem;
-  background: linear-gradient(180deg, #0b1a35 0%, #102440 100%);
-  box-shadow: 8px 0 28px rgb(7 23 50 / 8%);
+  background: linear-gradient(180deg, #18131f 0%, #2b1838 100%);
+  box-shadow: 8px 0 28px rgb(39 21 50 / 12%);
   color: #fff;
 }
 
@@ -38,7 +38,7 @@
   min-height: 48px;
   padding: 0.7rem 0.85rem;
   border-radius: 9px;
-  color: #d9e5f7;
+  color: #eee8f3;
   font-size: 0.84rem;
   font-weight: 500;
   text-decoration: none;
@@ -52,7 +52,7 @@
 }
 
 .app-nav a:hover {
-  background: rgb(80 139 236 / 14%);
+  background: rgb(171 112 218 / 15%);
   color: #fff;
   transform: translateX(2px);
 }
@@ -66,7 +66,7 @@
 .app-sidebar-footer {
   margin-top: auto;
   padding: 1rem 0.75rem 0;
-  border-top: 1px solid rgb(194 216 248 / 22%);
+  border-top: 1px solid rgb(232 213 246 / 22%);
 }
 
 .app-user {
@@ -109,7 +109,7 @@
 }
 
 .app-user-copy small {
-  color: #a9bad4;
+  color: #c9bccf;
   font-size: 0.65rem;
 }
 
@@ -122,7 +122,7 @@
   padding: 0.6rem 0;
   border: 0;
   background: transparent;
-  color: #d9e5f7;
+  color: #eee8f3;
   font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
@@ -152,13 +152,22 @@
   justify-content: space-between;
   min-height: 62px;
   padding: 0.7rem 1.75rem;
-  border-bottom: 1px solid #e4eaf2;
+  border-bottom: 1px solid #e9e5ec;
   background: rgb(255 255 255 / 90%);
   backdrop-filter: blur(10px);
 }
 
+.app-header-brand {
+  display: flex;
+  align-items: center;
+}
+
+.app-header-brand .similaris-brand-copy strong {
+  font-size: 1rem;
+}
+
 .app-header-label {
-  color: #72809a;
+  color: #777281;
   font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -169,7 +178,7 @@
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  color: #1b2a45;
+  color: #2b2632;
   font-size: 0.78rem;
 }
 
@@ -179,7 +188,7 @@
   height: 30px;
   place-items: center;
   border-radius: 50%;
-  background: #2161cc;
+  background: var(--brand-600);
   color: #fff;
   font-size: 0.65rem;
 }
@@ -308,7 +317,7 @@
 }
 
 .status-pill.is-processando::before {
-  background: #2563eb;
+  background: var(--brand-500);
 }
 
 .status-pill.is-concluido::before {
@@ -404,7 +413,7 @@
     z-index: 25;
     display: block;
     border: 0;
-    background: rgb(4 16 37 / 55%);
+    background: rgb(24 19 31 / 58%);
   }
 
   .app-main {
@@ -420,7 +429,7 @@
     justify-content: center;
     flex-direction: column;
     gap: 4px;
-    border: 1px solid #dce4ef;
+    border: 1px solid #e3dee7;
     border-radius: 7px;
     background: #fff;
     cursor: pointer;
@@ -429,7 +438,7 @@
   .app-menu-button span {
     width: 15px;
     height: 1.5px;
-    background: #243653;
+    background: #3c3444;
   }
 
   .app-header {
@@ -438,7 +447,7 @@
 }
 
 @media (max-width: 700px) {
-  .app-header-label {
+  .app-header-brand .similaris-brand-copy {
     display: none;
   }
 

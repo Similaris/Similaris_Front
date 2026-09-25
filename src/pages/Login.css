@@ -11,8 +11,8 @@
   display: flex;
   flex-direction: column;
   padding: 2.75rem 3rem;
-  color: #f4f2fb;
-  background: #161321;
+  color: #f2f7ff;
+  background: #0b1a35;
   overflow: hidden;
 }
 
@@ -22,7 +22,7 @@
   inset: 0;
   background: radial-gradient(
     80% 55% at 100% 100%,
-    rgb(109 40 217 / 0.16),
+    rgb(37 99 235 / 0.18),
     transparent 70%
   );
   pointer-events: none;
@@ -84,6 +84,10 @@
   gap: 1.1rem;
   width: 100%;
   max-width: 380px;
+}
+
+.auth-mobile-brand {
+  display: none;
 }
 
 .auth-card-header h1 {
@@ -194,5 +198,10 @@
 
   .auth-brand {
     display: none;
+  }
+
+  .auth-mobile-brand {
+    display: block;
+    margin-bottom: 1rem;
   }
 }

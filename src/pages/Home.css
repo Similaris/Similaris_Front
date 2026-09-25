@@ -172,7 +172,7 @@
 .home-score-card small { color: #60708f; font-size: 0.67rem; }
 .home-score-card strong { color: #071634; font-size: 0.86rem; }
 .home-score-card > span { height: 8px; margin-top: 0.35rem; overflow: hidden; border-radius: 999px; background: #e9eef7; }
-.home-score-card i { display: block; width: 72%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #1767ed, #7c3aed); }
+.home-score-card i { display: block; width: 72%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #1767ed, #38a3f1); }
 
 .home-shortcuts {
   display: grid;
@@ -204,7 +204,7 @@
 
 .home-shortcut.is-blue { background: linear-gradient(135deg, #f0f6ff, #e8f2ff); }
 .home-shortcut.is-green { background: linear-gradient(135deg, #f0fbf6, #e8f8f1); }
-.home-shortcut.is-purple { background: linear-gradient(135deg, #f7f4ff, #f0ecff); }
+.home-shortcut.is-navy { background: linear-gradient(135deg, #f2f7ff, #e8f0fb); }
 
 .home-shortcut-icon {
   display: grid;
@@ -220,8 +220,8 @@
 
 .home-shortcut.is-green .home-shortcut-icon,
 .home-shortcut.is-green b { color: #14875b; }
-.home-shortcut.is-purple .home-shortcut-icon,
-.home-shortcut.is-purple b { color: #6d28d9; }
+.home-shortcut.is-navy .home-shortcut-icon,
+.home-shortcut.is-navy b { color: #1d4f91; }
 
 .home-shortcut > span:nth-child(2) {
   display: flex;

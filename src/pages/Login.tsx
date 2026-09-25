@@ -56,6 +56,10 @@ function Login({ onLogin }: LoginProps) {
 
       <main className="auth-panel">
         <form className="auth-card" onSubmit={handleSubmit}>
+          <div className="auth-mobile-brand">
+            <SimilarisBrand showSubtitle />
+          </div>
+
           <header className="auth-card-header">
             <h1>{mode === "login" ? "Entrar" : "Criar conta"}</h1>
             <p>

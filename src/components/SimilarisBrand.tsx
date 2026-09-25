@@ -1,4 +1,4 @@
-import { useState } from "react";
+import similarisLogo from "../assets/similaris-logo.jpeg";
 import "./SimilarisBrand.css";
 
 interface SimilarisBrandProps {
@@ -12,22 +12,9 @@ function SimilarisBrand({
   light = false,
   showSubtitle = false,
 }: SimilarisBrandProps) {
-  const [logoAvailable, setLogoAvailable] = useState(true);
-
   return (
     <span className={`similaris-brand${compact ? " is-compact" : ""}${light ? " is-light" : ""}`}>
-      {logoAvailable ? (
-        <img
-          src="/similaris-logo.png"
-          alt=""
-          className="similaris-brand-logo"
-          onError={() => setLogoAvailable(false)}
-        />
-      ) : (
-        <span className="similaris-brand-fallback" aria-hidden="true">
-          S
-        </span>
-      )}
+      <img src={similarisLogo} alt="" className="similaris-brand-logo" />
       <span className="similaris-brand-copy">
         <strong>Similaris</strong>
         {showSubtitle && <small>Detecção de Plágio Acadêmico</small>}
