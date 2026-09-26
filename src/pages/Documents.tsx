@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  isFinalStatus,
   listDocuments,
+  retryDocument,
   type DocumentInfo,
 } from "../api/documents";
+import { getApiErrorMessage } from "../api/client";
 import DocumentUpload from "../components/DocumentUpload";
 import StatusBadge from "../components/StatusBadge";
 import { formatDateTime, normalizeSearchText } from "../utils/format";
@@ -25,10 +28,24 @@ function Documents({ onOpenReport }: DocumentsProps) {
   const [documentSearch, setDocumentSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<DocumentStatusFilter>("all");
   const [typeFilter, setTypeFilter] = useState<DocumentTypeFilter>("all");
+  const [retryingDocumentId, setRetryingDocumentId] = useState<number | null>(null);
 
   useEffect(() => {
     refreshDocuments();
   }, []);
+
+  useEffect(() => {
+    if (!documents.some((document) => !isFinalStatus(document.status))) return;
+
+    const timer = window.setTimeout(async () => {
+      try {
+        setDocuments(await listDocuments());
+      } catch {
+        // Mantém a lista atual; a próxima interação tentará novamente.
+      }
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, [documents]);
 
   async function refreshDocuments() {
     setLoadingList(true);
@@ -37,10 +54,31 @@ function Documents({ onOpenReport }: DocumentsProps) {
       const loadedDocuments = await listDocuments();
       setDocuments(loadedDocuments);
       setDocumentsPage(1);
-    } catch {
-      setError("Não foi possível carregar os documentos.");
+    } catch (requestError) {
+      setError(
+        getApiErrorMessage(requestError, "Não foi possível carregar os documentos."),
+      );
     } finally {
       setLoadingList(false);
+    }
+  }
+
+  async function handleRetry(documentId: number) {
+    setError("");
+    setRetryingDocumentId(documentId);
+    try {
+      const retriedDocument = await retryDocument(documentId);
+      setDocuments((current) =>
+        current.map((document) =>
+          document.id === retriedDocument.id ? retriedDocument : document,
+        ),
+      );
+    } catch (requestError) {
+      setError(
+        getApiErrorMessage(requestError, "Não foi possível reenviar o documento."),
+      );
+    } finally {
+      setRetryingDocumentId(null);
     }
   }
 
@@ -207,6 +245,18 @@ function Documents({ onOpenReport }: DocumentsProps) {
                               aria-label={`Ver relatório de ${document.filename}`}
                             >
                               Ver relatório
+                            </button>
+                          ) : document.status === "erro" ? (
+                            <button
+                              className="button-ghost"
+                              type="button"
+                              disabled={retryingDocumentId === document.id}
+                              onClick={() => handleRetry(document.id)}
+                              aria-label={`Reprocessar ${document.filename}`}
+                            >
+                              {retryingDocumentId === document.id
+                                ? "Reenviando..."
+                                : "Reprocessar"}
                             </button>
                           ) : (
                             <span aria-hidden="true">—</span>

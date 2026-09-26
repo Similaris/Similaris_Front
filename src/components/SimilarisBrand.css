@@ -5,26 +5,15 @@
   min-width: 0;
 }
 
-.similaris-brand-logo,
-.similaris-brand-fallback {
+.similaris-brand-logo {
   width: 72px;
   height: 72px;
   flex: 0 0 auto;
-}
-
-.similaris-brand-logo {
+  padding: 0.45rem;
+  border-radius: 20px;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 12px 28px rgb(37 99 235 / 18%);
   object-fit: contain;
-}
-
-.similaris-brand-fallback {
-  display: grid;
-  place-items: center;
-  border-radius: 22px 10px 22px 10px;
-  background: linear-gradient(145deg, #32a1ff 0%, #1559e8 56%, #4f46e5 100%);
-  box-shadow: 0 12px 28px rgb(37 99 235 / 24%);
-  color: #fff;
-  font-size: 2rem;
-  font-weight: 750;
 }
 
 .similaris-brand-copy {
@@ -34,7 +23,7 @@
 }
 
 .similaris-brand-copy strong {
-  color: #071634;
+  color: var(--ink-900);
   font-size: 2.5rem;
   font-weight: 750;
   letter-spacing: -0.045em;
@@ -43,7 +32,7 @@
 
 .similaris-brand-copy small {
   margin-top: 0.55rem;
-  color: #60708f;
+  color: var(--ink-500);
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.22em;
@@ -54,13 +43,12 @@
   gap: 0.65rem;
 }
 
-.similaris-brand.is-compact .similaris-brand-logo,
-.similaris-brand.is-compact .similaris-brand-fallback {
+.similaris-brand.is-compact .similaris-brand-logo {
   width: 38px;
   height: 38px;
-  border-radius: 12px 6px 12px 6px;
-  font-size: 1.05rem;
-  box-shadow: 0 8px 18px rgb(37 99 235 / 22%);
+  padding: 0.28rem;
+  border-radius: 11px;
+  box-shadow: 0 8px 18px rgb(37 99 235 / 20%);
 }
 
 .similaris-brand.is-compact .similaris-brand-copy strong {
@@ -73,8 +61,7 @@
 }
 
 @media (max-width: 600px) {
-  .similaris-brand-logo,
-  .similaris-brand-fallback {
+  .similaris-brand-logo {
     width: 56px;
     height: 56px;
   }

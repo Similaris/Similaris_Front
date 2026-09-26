@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { isAxiosError } from "axios";
-import { login, register, type User } from "../api/client";
+import { getApiErrorMessage, login, register, type User } from "../api/client";
+import SimilarisBrand from "../components/SimilarisBrand";
 import "./Login.css";
 
 interface LoginProps {
@@ -25,15 +25,13 @@ function Login({ onLogin }: LoginProps) {
       }
       const user = await login(email, password);
       onLogin(user);
-    } catch (err) {
-      if (isAxiosError(err) && err.response) {
-        const detail = err.response.data?.detail;
-        setError(
-          typeof detail === "string" ? detail : "Dados inválidos, verifique os campos.",
-        );
-      } else {
-        setError("Não foi possível conectar ao servidor.");
-      }
+    } catch (requestError) {
+      setError(
+        getApiErrorMessage(
+          requestError,
+          "Dados inválidos, verifique os campos.",
+        ),
+      );
     } finally {
       setLoading(false);
     }
@@ -42,7 +40,7 @@ function Login({ onLogin }: LoginProps) {
   return (
     <div className="auth-layout">
       <aside className="auth-brand">
-        <span className="auth-logo">Similaris</span>
+        <SimilarisBrand light showSubtitle />
 
         <div className="auth-brand-copy">
           <span className="auth-brand-rule" aria-hidden="true" />
@@ -58,6 +56,10 @@ function Login({ onLogin }: LoginProps) {
 
       <main className="auth-panel">
         <form className="auth-card" onSubmit={handleSubmit}>
+          <div className="auth-mobile-brand">
+            <SimilarisBrand showSubtitle />
+          </div>
+
           <header className="auth-card-header">
             <h1>{mode === "login" ? "Entrar" : "Criar conta"}</h1>
             <p>

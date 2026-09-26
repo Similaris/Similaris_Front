@@ -106,7 +106,7 @@ function AppLayout({ user, currentPath, onNavigate, onLogout, children }: AppLay
           <button className="app-menu-button" type="button" aria-label="Abrir menu" aria-expanded={sidebarOpen} onClick={() => setSidebarOpen((open) => !open)}>
             <span /><span /><span />
           </button>
-          <span className="app-header-label">Ambiente acadêmico</span>
+          <span className="app-header-brand"><SimilarisBrand compact /></span>
           <span className="app-header-user">
             <span className="app-header-avatar">{initialsOf(user.name)}</span>
             <strong>{user.name.split(/\s+/)[0]}</strong>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { isAxiosError } from "axios";
+import { getApiErrorMessage } from "../api/client";
 import {
   getDocumentAnalysis,
   type DocumentAnalysis,
@@ -10,6 +11,7 @@ import {
 import {
   getBatch,
   listDocumentSegments,
+  retryDocument,
   type DocumentInfo,
   type Segment,
 } from "../api/documents";
@@ -67,10 +69,10 @@ function loadErrorMessage(error: unknown): string {
     return "O documento ou o relatório solicitado não foi encontrado.";
   }
 
-  const detail = error.response.data?.detail;
-  return typeof detail === "string"
-    ? detail
-    : "Não foi possível carregar o relatório de similaridade.";
+  return getApiErrorMessage(
+    error,
+    "Não foi possível carregar o relatório de similaridade.",
+  );
 }
 
 function AnalysisReport({
@@ -87,6 +89,7 @@ function AnalysisReport({
   const [resultsPage, setResultsPage] = useState(1);
   const [matchSearch, setMatchSearch] = useState("");
   const [showAllMatches, setShowAllMatches] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -265,6 +268,21 @@ function AnalysisReport({
     setReloadKey((value) => value + 1);
   }
 
+  async function reprocessDocument() {
+    setError("");
+    setRetrying(true);
+    try {
+      await retryDocument(documentId);
+      setReloadKey((value) => value + 1);
+    } catch (requestError) {
+      setError(
+        getApiErrorMessage(requestError, "Não foi possível reenviar o documento."),
+      );
+    } finally {
+      setRetrying(false);
+    }
+  }
+
   return (
     <main className="page analysis-report-page">
       <div className="detail-navigation analysis-report-navigation">
@@ -355,8 +373,13 @@ function AnalysisReport({
                   "Não foi possível concluir a análise de similaridade deste documento."}
               </p>
               <div className="analysis-state-actions">
-                <button className="button-ghost" type="button" onClick={retry}>
-                  Atualizar
+                <button
+                  className="button-primary"
+                  type="button"
+                  disabled={retrying}
+                  onClick={reprocessDocument}
+                >
+                  {retrying ? "Reenviando..." : "Reprocessar análise"}
                 </button>
                 <button
                   className="button-ghost"
@@ -373,6 +396,39 @@ function AnalysisReport({
                 analysis={report.analysis}
                 totalMatches={rankedMatches.length}
               />
+
+              {report.analysis.analysis_profile &&
+                report.analysis.reference_fingerprint && (
+                  <aside className="analysis-traceability" aria-label="Rastreabilidade da análise">
+                    <div>
+                      <strong>Análise reproduzível</strong>
+                      <span>Configuração e base de referência registradas</span>
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>Modelo</dt>
+                        <dd>
+                          {String(
+                            report.analysis.analysis_profile.semantic_model ??
+                              "Modelo semântico configurado",
+                          )}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Versão</dt>
+                        <dd>
+                          {String(report.analysis.analysis_profile.version ?? "1")}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Base</dt>
+                        <dd title={report.analysis.reference_fingerprint}>
+                          {report.analysis.reference_fingerprint.slice(0, 12)}…
+                        </dd>
+                      </div>
+                    </dl>
+                  </aside>
+                )}
 
               <aside className="analysis-human-review" aria-label="Aviso importante">
                 <strong>Análise humana recomendada</strong>

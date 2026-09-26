@@ -18,7 +18,7 @@ const pipelineSteps: PipelineStep[] = [
     title: "Upload",
     description: "Você envia um ou mais arquivos para análise.",
     detail: "PDF e DOCX · até 20 MB por arquivo",
-    tone: "violet",
+    tone: "navy",
   },
   {
     number: "02",

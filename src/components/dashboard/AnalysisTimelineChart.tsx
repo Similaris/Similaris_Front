@@ -51,7 +51,7 @@ function AnalysisTimelineChart({ analyses }: AnalysisTimelineChartProps) {
               <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: "#6e6c80", fontSize: 11 }} />
               <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: "#6e6c80", fontSize: 11 }} />
               <Tooltip labelFormatter={(_, payload) => payload[0]?.payload.period ?? ""} formatter={(value) => [`${value}`, "Análises"]} />
-              <Line type="monotone" dataKey="count" stroke="#6d28d9" strokeWidth={2.5} dot={{ r: 4, fill: "#6d28d9" }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="count" stroke="#1767ed" strokeWidth={2.5} dot={{ r: 4, fill: "#1767ed" }} activeDot={{ r: 5 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

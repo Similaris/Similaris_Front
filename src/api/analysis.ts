@@ -58,6 +58,8 @@ export interface DocumentAnalysis {
   extraction_ms: number | null;
   lexical_ms: number;
   semantic_ms: number;
+  analysis_profile: Record<string, unknown> | null;
+  reference_fingerprint: string | null;
   segments: SegmentAnalysis[];
 }
 

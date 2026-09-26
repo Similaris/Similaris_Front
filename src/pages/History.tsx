@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getApiErrorMessage } from "../api/client";
 import {
   isFinalStatus,
   listBatches,
@@ -37,9 +38,14 @@ function History({ onOpenBatch, onStartAnalysis }: HistoryProps) {
         if (loadedBatches.some((batch) => !isFinalStatus(batch.status))) {
           timer = window.setTimeout(() => loadHistory(false), POLL_INTERVAL_MS);
         }
-      } catch {
+      } catch (requestError) {
         if (!cancelled) {
-          setError("Não foi possível carregar o histórico de análises.");
+          setError(
+            getApiErrorMessage(
+              requestError,
+              "Não foi possível carregar o histórico de análises.",
+            ),
+          );
         }
       } finally {
         if (!cancelled && showLoading) setLoading(false);

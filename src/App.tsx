@@ -83,6 +83,18 @@ function App() {
   }, []);
 
   useEffect(() => {
+    function handleExpiredSession() {
+      setUser(null);
+      window.history.replaceState(null, "", "/home");
+      setCurrentPath("/home");
+    }
+
+    window.addEventListener("similaris:session-expired", handleExpiredSession);
+    return () =>
+      window.removeEventListener("similaris:session-expired", handleExpiredSession);
+  }, []);
+
+  useEffect(() => {
     function handlePopState() {
       setCurrentPath(normalizedPath(window.location.pathname));
     }

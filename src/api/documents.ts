@@ -20,6 +20,8 @@ export interface DocumentInfo {
   extraction_ms: number | null;
   lexical_ms: number | null;
   semantic_ms: number | null;
+  analysis_profile: Record<string, unknown> | null;
+  reference_fingerprint: string | null;
   created_at: string;
   started_at: string | null;
   finished_at: string | null;
@@ -98,5 +100,10 @@ export async function listDocumentSegments(
   const { data } = await api.get<Segment[]>(
     `/documents/${documentId}/segments`,
   );
+  return data;
+}
+
+export async function retryDocument(documentId: number): Promise<DocumentInfo> {
+  const { data } = await api.post<DocumentInfo>(`/documents/${documentId}/retry`);
   return data;
 }
