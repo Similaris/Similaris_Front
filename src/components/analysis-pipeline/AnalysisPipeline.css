@@ -123,9 +123,39 @@
   stroke-width: 2;
 }
 
+.pipeline-path-flow.is-lexical {
+  stroke: #d97706;
+}
+
+.pipeline-path-flow.is-semantic {
+  stroke: var(--pipeline-semantic);
+}
+
+.pipeline-path-flow.is-hybrid {
+  stroke: #4f8ff7;
+}
+
 .pipeline-path-flow.is-active {
-  stroke: var(--brand-500);
-  stroke-dasharray: 5 7;
+  stroke-width: 2.4;
+  stroke-dasharray: 5 8;
+}
+
+.pipeline-data-pulse {
+  filter: drop-shadow(0 0 2px rgb(37 99 235 / 45%));
+  fill: var(--brand-500);
+}
+
+.pipeline-data-pulse.is-lexical {
+  fill: #d97706;
+  filter: drop-shadow(0 0 2px rgb(217 119 6 / 48%));
+}
+
+.pipeline-data-pulse.is-semantic {
+  fill: var(--pipeline-semantic);
+}
+
+.pipeline-data-pulse.is-hybrid {
+  fill: #4f8ff7;
 }
 
 .pipeline-node,
@@ -160,11 +190,30 @@
   border-color: #bce5c9;
 }
 
+.pipeline-node.is-pending,
+.pipeline-branch.is-pending {
+  border-color: #cdd9e9;
+  background: rgb(255 255 255 / 91%);
+}
+
 .pipeline-node.is-error,
 .pipeline-branch.is-error {
   border-color: #efb9b4;
   background: #fffafa;
   box-shadow: 0 0 0 3px rgb(220 38 38 / 7%);
+}
+
+.pipeline-hybrid.is-active {
+  border-color: #74a6f5;
+  background: linear-gradient(135deg, #f8fbff, #eef5ff);
+  box-shadow:
+    0 0 0 4px rgb(37 99 235 / 10%),
+    0 10px 24px rgb(37 99 235 / 14%);
+}
+
+.pipeline-hybrid.is-active .pipeline-node-icon {
+  background: var(--brand-600);
+  color: #fff;
 }
 
 .pipeline-node-icon {

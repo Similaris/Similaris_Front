@@ -11,25 +11,59 @@ interface AnalysisPipelineProps {
 
 type NodeState = "pending" | "active" | "complete" | "error";
 
-const STAGE_DELAYS = [650, 1500, 2500, 3900] as const;
+const STAGE_DELAYS = [600, 1400, 2300, 3400] as const;
 
 const stageMessages = [
-  "Recebendo os documentos...",
+  "Preparando os documentos...",
   "Extraindo o conteúdo textual...",
   "Dividindo o texto em trechos...",
   "Calculando similaridades lexical e semântica...",
   "Combinando os sinais no motor híbrido...",
 ] as const;
 
-const connections = [
-  { d: "M 50 10.5 L 50 14", stage: 1 },
-  { d: "M 50 22 L 50 25", stage: 2 },
-  { d: "M 50 33 C 50 36, 26 36, 26 39.5", stage: 3 },
-  { d: "M 50 33 C 50 36, 74 36, 74 39.5", stage: 3 },
-  { d: "M 26 72 C 26 76, 50 76, 50 79", stage: 4 },
-  { d: "M 74 72 C 74 76, 50 76, 50 79", stage: 4 },
-  { d: "M 50 88 L 50 91", stage: 5 },
-] as const;
+type ConnectionTone = "shared" | "lexical" | "semantic" | "hybrid";
+
+interface PipelineConnection {
+  d: string;
+  pulse?: { cx: number[]; cy: number[] };
+  stage: number;
+  tone: ConnectionTone;
+}
+
+const connections: PipelineConnection[] = [
+  { d: "M 50 10.5 L 50 14", stage: 1, tone: "shared" },
+  { d: "M 50 22 L 50 25", stage: 2, tone: "shared" },
+  {
+    d: "M 50 33 C 50 36, 26 36, 26 39.5",
+    pulse: { cx: [50, 43, 34, 26], cy: [33, 35.5, 37, 39.5] },
+    stage: 3,
+    tone: "lexical",
+  },
+  {
+    d: "M 50 33 C 50 36, 74 36, 74 39.5",
+    pulse: { cx: [50, 57, 66, 74], cy: [33, 35.5, 37, 39.5] },
+    stage: 3,
+    tone: "semantic",
+  },
+  {
+    d: "M 26 72 C 26 76, 50 76, 50 79",
+    pulse: { cx: [26, 32, 41, 50], cy: [72, 75, 76.5, 79] },
+    stage: 4,
+    tone: "lexical",
+  },
+  {
+    d: "M 74 72 C 74 76, 50 76, 50 79",
+    pulse: { cx: [74, 68, 59, 50], cy: [72, 75, 76.5, 79] },
+    stage: 4,
+    tone: "semantic",
+  },
+  {
+    d: "M 50 88 L 50 91",
+    pulse: { cx: [50, 50], cy: [88, 91] },
+    stage: 5,
+    tone: "hybrid",
+  },
+];
 
 function documentSummary(fileNames: string[]): string {
   if (fileNames.length === 0) return "Documentos do lote";
@@ -61,7 +95,7 @@ function PipelineNode({
       className={`pipeline-node is-${state} ${className}`}
       initial={{ opacity: 0, y: 8 }}
       animate={{
-        opacity: state === "pending" ? 0.48 : 1,
+        opacity: state === "pending" ? 0.72 : 1,
         scale:
           state === "active" && !prefersReducedMotion ? [1, 1.012, 1] : 1,
         y: 0,
@@ -111,7 +145,7 @@ function PipelineBranch({ kind, state }: PipelineBranchProps) {
       className={`pipeline-branch is-${kind} is-${state}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{
-        opacity: state === "pending" ? 0.42 : 1,
+        opacity: state === "pending" ? 0.72 : 1,
         scale:
           state === "active" && !prefersReducedMotion ? [1, 1.006, 1] : 1,
         y: 0,
@@ -139,7 +173,7 @@ function PipelineBranch({ kind, state }: PipelineBranchProps) {
             animate={
               state === "active" && !prefersReducedMotion
                 ? { opacity: [0.55, 1, 0.55] }
-                : { opacity: state === "pending" ? 0.72 : 1 }
+                : { opacity: state === "pending" ? 0.84 : 1 }
             }
             transition={
               state === "active" && !prefersReducedMotion
@@ -182,12 +216,13 @@ function AnalysisPipeline({ fileNames, status }: AnalysisPipelineProps) {
       if (stage < visualStage) return "complete";
       return stage === visualStage ? "error" : "pending";
     }
+    if (stage === 3 && visualStage >= 3) return "active";
     if (stage < visualStage) return "complete";
     return stage === visualStage ? "active" : "pending";
   };
 
   const statusMessage = useMemo(() => {
-    if (status === "completed") return "Pipeline finalizado. Abrindo os resultados...";
+    if (status === "completed") return "Análise concluída. Abrindo os resultados...";
     if (status === "error") return "O processamento foi interrompido.";
     return stageMessages[Math.min(visualStage, stageMessages.length - 1)];
   }, [status, visualStage]);
@@ -232,15 +267,23 @@ function AnalysisPipeline({ fileNames, status }: AnalysisPipelineProps) {
         >
           {connections.map((connection) => {
             const reached = visualStage >= connection.stage || status === "completed";
+            const sustainedActivity =
+              status === "processing" &&
+              visualStage >= 4 &&
+              connection.stage >= 3 &&
+              connection.stage <= 4;
             const active =
-              status === "processing" && visualStage === connection.stage;
+              status === "processing" &&
+              (visualStage === connection.stage || sustainedActivity);
 
             return (
               <g key={connection.d}>
                 <path className="pipeline-path-base" d={connection.d} />
                 {reached && (
                   <motion.path
-                    className={`pipeline-path-flow${active ? " is-active" : ""}`}
+                    className={`pipeline-path-flow is-${connection.tone}${
+                      active ? " is-active" : ""
+                    }`}
                     d={connection.d}
                     initial={{ pathLength: 0, opacity: 0 }}
                     animate={{
@@ -257,6 +300,23 @@ function AnalysisPipeline({ fileNames, status }: AnalysisPipelineProps) {
                         ease: "linear",
                         repeat: Infinity,
                       },
+                    }}
+                  />
+                )}
+                {active && connection.pulse && !prefersReducedMotion && (
+                  <motion.circle
+                    className={`pipeline-data-pulse is-${connection.tone}`}
+                    r="0.72"
+                    animate={{
+                      cx: connection.pulse.cx,
+                      cy: connection.pulse.cy,
+                      opacity: [0, 1, 1, 0],
+                    }}
+                    transition={{
+                      duration: connection.stage >= 3 ? 1.9 : 1.3,
+                      ease: "easeInOut",
+                      repeat: Infinity,
+                      repeatDelay: 0.35,
                     }}
                   />
                 )}

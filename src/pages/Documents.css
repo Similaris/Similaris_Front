@@ -1,5 +1,118 @@
 /* ---------- Dropzone ---------- */
 
+@media (min-width: 901px) {
+  .documents-page {
+    height: calc(100vh - 62px);
+    max-height: calc(100vh - 62px);
+    max-width: 1120px;
+    gap: 1rem;
+    overflow: hidden;
+    padding-top: 1.2rem;
+    padding-bottom: 1.2rem;
+  }
+
+  .documents-page .page-heading {
+    flex: 0 0 auto;
+    padding-bottom: 0.8rem;
+  }
+
+  .documents-page > .card {
+    padding: 1.1rem 1.25rem;
+  }
+
+  .documents-page > .card:first-of-type {
+    flex: 0 0 auto;
+  }
+
+  .documents-page > .card:first-of-type .card-heading {
+    margin-bottom: 0.75rem;
+  }
+
+  .documents-page > .card:first-of-type .dropzone {
+    padding-block: 1.35rem;
+  }
+
+  .documents-page > .card:last-of-type {
+    min-height: 0;
+  }
+
+  /* Durante a análise, o pipeline ocupa o card inteiro para não ser cortado
+     pelo modo compacto da página. A tabela volta quando o pipeline termina. */
+  .documents-page:has(.analysis-pipeline) > .card:last-of-type {
+    display: none;
+  }
+
+  .documents-page:has(.analysis-pipeline) > .card:first-of-type .dropzone,
+  .documents-page:has(.analysis-pipeline) > .card:first-of-type .file-list,
+  .documents-page:has(.analysis-pipeline) > .card:first-of-type .form-actions {
+    display: none;
+  }
+
+  .documents-page:has(.analysis-pipeline) > .card:first-of-type {
+    overflow: visible;
+  }
+
+  .documents-page:has(.analysis-pipeline.is-processing) .batch-monitor {
+    display: none;
+  }
+
+  .documents-page:has(.analysis-pipeline) .analysis-pipeline-heading {
+    padding: 0.75rem 1rem 0.65rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .analysis-pipeline-canvas {
+    grid-template-rows: 60px 54px 54px 180px 60px 54px;
+    gap: 8px;
+    min-height: 521px;
+    padding: 0.6rem 1.4rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-node {
+    width: min(100%, 320px);
+    gap: 0.78rem;
+    padding: 0.7rem 0.85rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-node-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-branch {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-branch header {
+    padding-bottom: 0.42rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-branch ol {
+    gap: 0.4rem;
+    padding-top: 0.5rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-branch li strong {
+    font-size: 0.72rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-branch li small {
+    font-size: 0.62rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-branch header small {
+    font-size: 0.64rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-branch header strong,
+  .documents-page:has(.analysis-pipeline) .pipeline-node-copy strong {
+    font-size: 0.86rem;
+  }
+
+  .documents-page:has(.analysis-pipeline) .pipeline-node-copy small {
+    font-size: 0.7rem;
+  }
+}
+
 .dropzone {
   display: flex;
   flex-direction: column;

@@ -96,7 +96,7 @@ function DocumentUpload({
           if (completedDocument) {
             navigationTimer = window.setTimeout(
               () => onOpenReportRef.current(detail.id, completedDocument.id),
-              500,
+              400,
             );
           }
           return;

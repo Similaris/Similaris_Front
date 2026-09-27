@@ -43,6 +43,29 @@
   list-style: none;
 }
 
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  color: var(--ink-500);
+  font-size: 0.78rem;
+}
+
+.history-pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.history-pagination .button-ghost {
+  padding: 0.42rem 0.7rem;
+  font-size: 0.78rem;
+}
+
 .history-list {
   display: flex;
   flex-direction: column;
@@ -338,6 +361,15 @@
   }
 
   .document-segments-pagination > div {
+    justify-content: space-between;
+  }
+
+  .history-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .history-pagination > div {
     justify-content: space-between;
   }
 }
