@@ -61,9 +61,9 @@
   }
 
   .documents-page:has(.analysis-pipeline) .analysis-pipeline-canvas {
-    grid-template-rows: 60px 54px 54px 180px 60px 54px;
+    grid-template-rows: 60px 54px 54px 198px 60px 54px;
     gap: 8px;
-    min-height: 521px;
+    min-height: 539px;
     padding: 0.6rem 1.4rem;
   }
 
