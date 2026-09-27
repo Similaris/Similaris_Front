@@ -52,6 +52,18 @@
   backdrop-filter: blur(7px);
 }
 
+.home-hero:has(.analysis-pipeline) {
+  grid-template-columns: 1fr;
+}
+
+.home-hero:has(.analysis-pipeline) .home-hero-art {
+  display: none;
+}
+
+.home-hero:has(.analysis-pipeline) .home-upload-card {
+  width: 100%;
+}
+
 .document-upload.is-featured .dropzone {
   padding: 1.35rem 1.25rem;
   border-color: #a9c8fb;
