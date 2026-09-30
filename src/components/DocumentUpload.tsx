@@ -13,6 +13,9 @@ import {
   type BatchDetail,
 } from "../api/documents";
 import StatusBadge from "./StatusBadge";
+import AnalysisPipeline, {
+  type AnalysisPipelineStatus,
+} from "./analysis-pipeline/AnalysisPipeline";
 import "../pages/Documents.css";
 
 const ACCEPTED_EXTENSIONS = [".pdf", ".docx"];
@@ -61,6 +64,8 @@ function DocumentUpload({
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [submittedFileNames, setSubmittedFileNames] = useState<string[]>([]);
+  const [analysisRunId, setAnalysisRunId] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const onOpenReportRef = useRef(onOpenReport);
   const onDocumentsChangedRef = useRef(onDocumentsChanged);
@@ -75,6 +80,7 @@ function DocumentUpload({
 
     let cancelled = false;
     let timer: number | undefined;
+    let navigationTimer: number | undefined;
 
     async function poll() {
       try {
@@ -88,7 +94,10 @@ function DocumentUpload({
             (document) => document.status === "concluido",
           );
           if (completedDocument) {
-            onOpenReportRef.current(detail.id, completedDocument.id);
+            navigationTimer = window.setTimeout(
+              () => onOpenReportRef.current(detail.id, completedDocument.id),
+              400,
+            );
           }
           return;
         }
@@ -105,6 +114,7 @@ function DocumentUpload({
     return () => {
       cancelled = true;
       if (timer !== undefined) window.clearTimeout(timer);
+      if (navigationTimer !== undefined) window.clearTimeout(navigationTimer);
     };
   }, [trackedBatchId]);
 
@@ -143,15 +153,21 @@ function DocumentUpload({
 
   async function handleUpload() {
     if (selectedFiles.length === 0) return;
+    const filesToUpload = selectedFiles;
     setError("");
+    setBatchDetail(null);
+    setTrackedBatchId(null);
+    setSubmittedFileNames(filesToUpload.map((file) => file.name));
+    setAnalysisRunId((value) => value + 1);
     setUploading(true);
     try {
-      const result = await uploadDocuments(selectedFiles);
+      const result = await uploadDocuments(filesToUpload);
       setBatchDetail(null);
       setTrackedBatchId(result.batch_id);
       setSelectedFiles([]);
       onDocumentsChangedRef.current?.();
     } catch (requestError) {
+      setSubmittedFileNames([]);
       setError(
         getApiErrorMessage(requestError, "Não foi possível enviar os arquivos."),
       );
@@ -220,6 +236,20 @@ function DocumentUpload({
             Limpar
           </button>
         </div>
+      )}
+
+      {(uploading || trackedBatchId !== null) && submittedFileNames.length > 0 && (
+        <AnalysisPipeline
+          key={analysisRunId}
+          fileNames={submittedFileNames}
+          status={
+            (batchDetail?.status === "erro"
+              ? "error"
+              : batchDetail?.status === "concluido"
+                ? "completed"
+                : "processing") satisfies AnalysisPipelineStatus
+          }
+        />
       )}
 
       {trackedBatchId !== null && (

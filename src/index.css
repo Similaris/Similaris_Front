@@ -51,6 +51,7 @@ body {
   font-family: var(--font-sans);
   color: var(--ink-900);
   background: var(--surface-muted);
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

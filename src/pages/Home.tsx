@@ -7,6 +7,8 @@ import StatusBadge from "../components/StatusBadge";
 import { formatDateTime, pluralize } from "../utils/format";
 import "./Home.css";
 
+const RECENT_ANALYSES_PREVIEW_LIMIT = 3;
+
 interface HomeProps {
   onStartAnalysis: () => void;
   onOpenHistory: () => void;
@@ -52,6 +54,8 @@ function Home({
       cancelled = true;
     };
   }, [reloadKey]);
+
+  const visibleAnalyses = analyses.slice(0, RECENT_ANALYSES_PREVIEW_LIMIT);
 
   return (
     <main className="home-page">
@@ -124,7 +128,7 @@ function Home({
           </div>
         ) : (
           <ul className="home-recent-list">
-            {analyses.map((analysis) => (
+            {visibleAnalyses.map((analysis) => (
               <li key={analysis.id}>
                 <span className="home-file-icon" aria-hidden="true">▤</span>
                 <div className="home-recent-main">

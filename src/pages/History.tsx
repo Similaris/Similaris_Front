@@ -15,12 +15,14 @@ interface HistoryProps {
 }
 
 const POLL_INTERVAL_MS = 2500;
+const HISTORY_PER_PAGE = 6;
 
 function History({ onOpenBatch, onStartAnalysis }: HistoryProps) {
   const [batches, setBatches] = useState<BatchSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [historyPage, setHistoryPage] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,6 +61,14 @@ function History({ onOpenBatch, onStartAnalysis }: HistoryProps) {
       if (timer !== undefined) window.clearTimeout(timer);
     };
   }, [reloadKey]);
+
+  const historyPageCount = Math.max(1, Math.ceil(batches.length / HISTORY_PER_PAGE));
+  const currentHistoryPage = Math.min(historyPage, historyPageCount);
+  const firstVisibleBatch = (currentHistoryPage - 1) * HISTORY_PER_PAGE;
+  const visibleBatches = batches.slice(
+    firstVisibleBatch,
+    firstVisibleBatch + HISTORY_PER_PAGE,
+  );
 
   return (
     <main className="page">
@@ -102,7 +112,7 @@ function History({ onOpenBatch, onStartAnalysis }: HistoryProps) {
           </div>
         ) : (
           <ol className="history-list">
-            {batches.map((batch) => (
+            {visibleBatches.map((batch) => (
               <li key={batch.id} className="history-item">
                 <div className="history-item-main">
                   <strong>Análise #{batch.id}</strong>
@@ -129,6 +139,36 @@ function History({ onOpenBatch, onStartAnalysis }: HistoryProps) {
               </li>
             ))}
           </ol>
+        )}
+
+        {!loading && !error && batches.length > HISTORY_PER_PAGE && (
+          <nav className="history-pagination" aria-label="Paginação do histórico">
+            <span>
+              Exibindo {firstVisibleBatch + 1}–
+              {Math.min(firstVisibleBatch + HISTORY_PER_PAGE, batches.length)} de {batches.length}
+            </span>
+            <div>
+              <button
+                className="button-ghost"
+                type="button"
+                disabled={currentHistoryPage === 1}
+                onClick={() => setHistoryPage((page) => Math.max(1, page - 1))}
+              >
+                Anterior
+              </button>
+              <span>Página {currentHistoryPage} de {historyPageCount}</span>
+              <button
+                className="button-ghost"
+                type="button"
+                disabled={currentHistoryPage === historyPageCount}
+                onClick={() =>
+                  setHistoryPage((page) => Math.min(historyPageCount, page + 1))
+                }
+              >
+                Próxima
+              </button>
+            </div>
+          </nav>
         )}
       </section>
     </main>

@@ -11,7 +11,7 @@ import StatusBadge from "../components/StatusBadge";
 import { formatDateTime, normalizeSearchText } from "../utils/format";
 import "./Documents.css";
 
-const DOCUMENTS_PER_PAGE = 8;
+const DOCUMENTS_PER_PAGE = 4;
 
 type DocumentStatusFilter = "all" | DocumentInfo["status"];
 type DocumentTypeFilter = "all" | "pdf" | "docx";
@@ -108,7 +108,7 @@ function Documents({ onOpenReport }: DocumentsProps) {
   );
 
   return (
-    <main className="page">
+    <main className="page documents-page">
         <div className="page-heading">
           <h1>Documentos</h1>
           <p>Envie trabalhos em PDF ou DOCX para segmentação e análise.</p>
