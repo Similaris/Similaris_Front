@@ -48,7 +48,7 @@ type ResultFilter = "all" | "suspicious" | Extract<
 
 const POLL_INTERVAL_MS = 2500;
 const RESULTS_PER_PAGE = 10;
-const TOP_SUSPICIOUS_LIMIT = 5;
+const TOP_MATCHES_LIMIT = 5;
 
 function isProcessing(status: DocumentAnalysis["status"]): boolean {
   return status === "pendente" || status === "processando";
@@ -184,20 +184,10 @@ function AnalysisReport({
     return matches.map((match, index) => ({ ...match, rank: index + 1 }));
   }, [report]);
 
-  const topSuspiciousMatches = useMemo(() => {
-    const seenSegments = new Set<number>();
-
-    return rankedMatches
-      .filter(({ segmentAnalysis, match }) => {
-        if (!match.is_suspicious || seenSegments.has(segmentAnalysis.segment_id)) {
-          return false;
-        }
-
-        seenSegments.add(segmentAnalysis.segment_id);
-        return true;
-      })
-      .slice(0, TOP_SUSPICIOUS_LIMIT);
-  }, [rankedMatches]);
+  const topMatches = useMemo(
+    () => rankedMatches.slice(0, TOP_MATCHES_LIMIT),
+    [rankedMatches],
+  );
 
   const searchedMatches = useMemo(() => {
     const normalizedSearch = normalizeSearchText(matchSearch);
@@ -463,24 +453,23 @@ function AnalysisReport({
                       <span className="analysis-results-eyebrow">
                         Prioridade de revisão
                       </span>
-                      <h2 id="analysis-results-title">Top trechos mais suspeitos</h2>
+                      <h2 id="analysis-results-title">Top 5 correspondências</h2>
                       <p>
-                        A melhor correspondência de cada trecho, ordenada pelo
-                        maior score final.
+                        As cinco correspondências com maior score final.
                       </p>
                     </div>
                     <span className="card-count">
-                      {topSuspiciousMatches.length} em destaque
+                      {topMatches.length} em destaque
                     </span>
                   </div>
 
-                  {topSuspiciousMatches.length === 0 ? (
+                  {topMatches.length === 0 ? (
                     <div className="analysis-filter-empty">
-                      <p>Nenhum trecho foi classificado como suspeito.</p>
+                      <p>Nenhuma correspondência foi encontrada.</p>
                     </div>
                   ) : (
                     <div className="analysis-results-list analysis-top-results-list">
-                      {topSuspiciousMatches.map(
+                      {topMatches.map(
                         ({ rank, segmentAnalysis, match, analyzedSegment }) => (
                           <SimilarityResultItem
                             key={`${segmentAnalysis.segment_id}-${match.reference_document.id}-${match.reference_segment.id}`}
